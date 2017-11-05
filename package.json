@@ -1,0 +1,52 @@
+{
+  "name": "typescript-redux-observable",
+  "version": "0.0.1",
+  "description": "Type safety in React, using Redux.",
+  "main": "index.tsx",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joeldalley/typescript-redux-observable.git"
+  },
+  "keywords": [
+    "typescript",
+    "react",
+    "rxjs",
+    "redux",
+    "redux-observable",
+    "webpack"
+  ],
+  "author": "Joel Dalley",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/joeldalley/typescript-redux-observable/issues"
+  },
+  "homepage": "https://github.com/joeldalley/typescript-redux-observable#readme",
+  "scripts": {
+    "build": "npm run clean && npm run tsc --pretty && npm run webpack --",
+    "clean": "rm -rf dist",
+    "tsc": "tsc",
+    "watch": "npm run tsc && npm run webpack -- -w",
+    "webpack": "webpack"
+  },
+  "dependencies": {
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "react-redux": "^5.0.6",
+    "redux": "^3.7.2",
+    "redux-observable": "^0.17.0",
+    "webpack": "^3.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^8.0.31",
+    "@types/react": "^16.0.20",
+    "@types/react-dom": "^16.0.2",
+    "@types/react-redux": "^5.0.12",
+    "awesome-typescript-loader": "^3.3.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "jest-cli": "^21.2.1",
+    "source-map-loader": "^0.2.3",
+    "tslint": "^5.7.0",
+    "typescript": "^2.6.1"
+  }
+}
