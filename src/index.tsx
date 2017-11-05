@@ -30,21 +30,19 @@ namespace Model {
     wind: Wind
   }
 
-  export type Constructable = WeatherState
-                            | {[index: string]: any, json: object}
+  export type Constructable = WeatherState & {json: object | null}
 
   export const cardinalPoints = ['N', 'E', 'S', 'W']
   export const getWindDirection = (maybeDir = ''): Direction =>
     cardinalPoints.includes(maybeDir) ? maybeDir as Direction : 'N'
 
   export class WeatherState implements WeatherState {
-    [index: string]: string | Temperature | Wind
     error = ''
     temperature: Temperature = {celsius: 0, fahrenheit: 0}
     wind: Wind = {description: 'calm', direction: 'N', speed: {'mi/h': 0}}
 
-    constructor(arg: Partial<Constructable> = {}) {
-      if ('json' in arg) {
+    constructor(arg: Partial<Constructable> = {json: null}) {
+      if (arg.json) {
         this.temperature = {
           celsius: Number(getOrElse(arg.json, ['c', 'temp.celsius'], 0)),
           fahrenheit: Number(getOrElse(arg.json, ['f', 'temp.fahrenheit'], 0))
@@ -56,9 +54,9 @@ namespace Model {
         }
       }
       else {
-        this.error = String(arg.error || '')
-        if ('temperature' in arg) { this.temperature = arg.temperature }
-        if ('wind' in arg) { this.wind = arg.wind }
+        this.error = String(arg.error || '') as string
+        this.temperature = arg.temperature || this.temperature
+        this.wind = arg.wind || this.wind
       }
 
       this.wind.description = this.wind.speed['mi/h'] < 20 && 'calm'
@@ -69,16 +67,17 @@ namespace Model {
 }
 
 ///////////////////////////////////////////////////////////////
-// Action types and action creator functions
+// Action types and Action creator functions
 
 namespace Action {
+  export type Error = Redux.AnyAction & {error: string}
   export type Fetched = Redux.AnyAction & {json: object}
 
-  export function error(err: string): Redux.AnyAction {
+  export function error(err: string): Error {
     return {type: 'ERROR', error: err}
   }
 
-  export function fetch(): Redux.AnyAction {
+  export function fetch(): Redux.Action {
     return {type: 'FETCH'}
   }
 
@@ -98,16 +97,18 @@ namespace Reducer {
     switch (action.type) {
       case 'ERROR': return new Model.WeatherState({
         ...state,
-        error: String(action.error)
+        error: String(action.error),
+        json: null
       })
       case 'FETCH': return new Model.WeatherState({
         ...state,
-        error: ''
+        error: '',
+        json: null
       })
       case 'FETCHED': return new Model.WeatherState({
         ...state,
         error: '',
-        json: action.json
+        json: action.json,
       })
       default: return state
     }
@@ -158,7 +159,7 @@ namespace Component {
     weather: Model.WeatherState
   }
 
-  class WeatherStation extends React.Component<Props> {
+  class WeatherStationCore extends React.Component<Props> {
     componentWillMount() {
       setInterval(() => this.props.dispatch(Action.fetch()), 1000)
     }
@@ -206,8 +207,8 @@ namespace Component {
     }
   }
 
-  export const WeatherStationConnected =
-    ReactRedux.connect(state => state)(WeatherStation)
+  const map: ReactRedux.MapStateToProps<Props, Props> = state => state
+  export const WeatherStation = ReactRedux.connect(map)(WeatherStationCore)
 }
 
 ///////////////////////////////////////////////////////////////
@@ -229,7 +230,7 @@ export function launchApp() {
 
   ReactDOM.render(
     <ReactRedux.Provider store={store}>
-      <Component.WeatherStationConnected
+      <Component.WeatherStation
         dispatch={store.dispatch}
         weather={new Model.WeatherState()}/>
     </ReactRedux.Provider>,
