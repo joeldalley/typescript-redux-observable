@@ -24,7 +24,7 @@
   "scripts": {
     "build": "npm run clean && npm run tsc --pretty && npm run lint && npm run webpack --",
     "clean": "rm -rf dist",
-    "lint": "tslint src/*.tsx",
+    "lint": "tslint --project tsconfig.json 'src/*.ts?(x)'",
     "tsc": "tsc",
     "watch": "npm run tsc && npm run webpack -- -w",
     "webpack": "webpack"

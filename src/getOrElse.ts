@@ -10,13 +10,13 @@ const getOrElse = (
   orElse: any,
   requireDefined: boolean = false
 ) => {
-  if (root !== null && typeof root === 'object' && dotPath === '') {
+  if (root && typeof root === 'object' && dotPath === '') {
     return root
   }
 
   return dotPath.split('.').reduce((acc, curr, idx) => {
     const ptr = idx === 0 ? root : acc
-    const isObject = ptr !== null && typeof ptr === 'object'
+    const isObject = ptr && typeof ptr === 'object'
     return isObject && isValid(ptr, curr, requireDefined) ? ptr[curr] : orElse
   }, orElse)
 }
@@ -45,3 +45,27 @@ export const getDefinedOrElse = (
   return Array.isArray(dotPath) ? multiPathsGetOrElse(root, dotPath, orElse)
     : getOrElse(root, dotPath, orElse, true)
 }
+
+export const getBooleanOr = (
+  root: object,
+  dotPath: string | string[],
+  orElse: any = undefined
+) : boolean => Boolean(getDefinedOrElse(root, dotPath, orElse))
+
+export const getNumberOr = (
+  root: object,
+  dotPath: string | string[],
+  orElse: any = undefined
+) : number => Number(getDefinedOrElse(root, dotPath, orElse))
+
+export const getObjectOr = (
+  root: object,
+  dotPath: string | string[],
+  orElse: any = undefined
+) : object => Object(getDefinedOrElse(root, dotPath, orElse))
+
+export const getStringOr = (
+  root: object,
+  dotPath: string | string[],
+  orElse: any = undefined
+) : string => Object(getDefinedOrElse(root, dotPath, orElse))
