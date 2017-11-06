@@ -16,7 +16,7 @@ namespace Model {
     fahrenheit: number
   }
 
-  export type Direction = 'N' | 'E' | 'S' | 'W'
+  export enum Direction {N = 'N', E = 'E', S = 'S', W = 'W'}
 
   export interface Wind {
     description: 'calm' | 'windy' | 'very windy'
@@ -32,15 +32,15 @@ namespace Model {
 
   export type Constructable = WeatherState & {json: object}
 
-  export const cardinalPoints = ['N', 'E', 'S', 'W']
-  export const getWindDirection = (dir = 'N'): Direction => {
-    return cardinalPoints.includes(String(dir)) ? dir as Direction : 'N'
+  export const cardinalPoints = Object.keys(Direction)
+  export const getWindDirection = (dir = ''): Direction => {
+    return cardinalPoints.includes(String(dir)) ? dir as Direction : Direction.N
   }
 
   export class WeatherState implements WeatherState {
     error = ''
     temperature: Temperature = {celsius: 0, fahrenheit: 0}
-    wind: Wind = {description: 'calm', direction: 'N', speed: {'mi/h': 0}}
+    wind: Wind = {description: 'calm', direction: Direction.N, speed: {'mi/h': 0}}
 
     constructor(arg: Partial<Constructable> = {json: undefined}) {
       if (arg.json) {
