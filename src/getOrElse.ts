@@ -50,22 +50,22 @@ export const getBooleanOr = (
   root: object,
   dotPath: string | string[],
   orElse: any = undefined
-) : boolean => Boolean(getDefinedOrElse(root, dotPath, orElse))
+): boolean => Boolean(getDefinedOrElse(root, dotPath, orElse))
 
 export const getNumberOr = (
   root: object,
   dotPath: string | string[],
   orElse: any = undefined
-) : number => Number(getDefinedOrElse(root, dotPath, orElse))
+): number => Number(getDefinedOrElse(root, dotPath, orElse))
 
 export const getObjectOr = (
   root: object,
   dotPath: string | string[],
   orElse: any = undefined
-) : object => Object(getDefinedOrElse(root, dotPath, orElse))
+): object => Object(getDefinedOrElse(root, dotPath, orElse))
 
 export const getStringOr = (
   root: object,
   dotPath: string | string[],
   orElse: any = undefined
-) : string => Object(getDefinedOrElse(root, dotPath, orElse))
+): string => Object(getDefinedOrElse(root, dotPath, orElse))
