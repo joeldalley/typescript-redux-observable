@@ -30,18 +30,18 @@ namespace Model {
     wind: Wind
   }
 
-  export type Constructable = WeatherState & {json: object | null}
+  export type Constructable = WeatherState & {json: object}
 
-  export const cardinalPoints = ['N', 'E', 'S', 'W']
-  export const getWindDirection = (maybeDir = ''): Direction =>
-    cardinalPoints.includes(maybeDir) ? maybeDir as Direction : 'N'
+  export const cardinalPoints: Direction[] = ['N', 'E', 'S', 'W']
+  export const getWindDirection = (maybeDir = 'N'): Direction =>
+    cardinalPoints.includes(maybeDir as Direction) ? maybeDir as Direction : 'N'
 
   export class WeatherState implements WeatherState {
     error = ''
     temperature: Temperature = {celsius: 0, fahrenheit: 0}
     wind: Wind = {description: 'calm', direction: 'N', speed: {'mi/h': 0}}
 
-    constructor(arg: Partial<Constructable> = {json: null}) {
+    constructor(arg: Partial<Constructable> = {json: undefined}) {
       if (arg.json) {
         this.temperature = {
           celsius: Number(getOrElse(arg.json, ['c', 'temp.celsius'], 0)),
@@ -54,7 +54,7 @@ namespace Model {
         }
       }
       else {
-        this.error = String(arg.error || '') as string
+        this.error = String(arg.error || '')
         this.temperature = arg.temperature || this.temperature
         this.wind = arg.wind || this.wind
       }
@@ -67,13 +67,10 @@ namespace Model {
 }
 
 ///////////////////////////////////////////////////////////////
-// Action types and Action creator functions
+// Action creator functions
 
 namespace Action {
-  export type Error = Redux.AnyAction & {error: string}
-  export type Fetched = Redux.AnyAction & {json: object}
-
-  export function error(err: string): Error {
+  export function error(err: string): Redux.AnyAction {
     return {type: 'ERROR', error: err}
   }
 
@@ -81,8 +78,8 @@ namespace Action {
     return {type: 'FETCH'}
   }
 
-  export function fetched(json: any): Fetched {
-    return {type: 'FETCHED', json: Object(json)}
+  export function fetched(json: object): Redux.AnyAction {
+    return {type: 'FETCHED', json}
   }
 }
 
@@ -97,18 +94,16 @@ namespace Reducer {
     switch (action.type) {
       case 'ERROR': return new Model.WeatherState({
         ...state,
-        error: String(action.error),
-        json: null
+        error: String(action.error)
       })
       case 'FETCH': return new Model.WeatherState({
         ...state,
-        error: '',
-        json: null
+        error: ''
       })
       case 'FETCHED': return new Model.WeatherState({
         ...state,
         error: '',
-        json: action.json,
+        json: Object(action.json)
       })
       default: return state
     }
@@ -121,13 +116,15 @@ namespace Reducer {
 namespace Epic {
   const emptyOr = (or: object) => Math.random() < .5 ? {} : or
 
-  export function fetchWeather(action$: any) {
+  export function fetchWeather(
+    action$: ReduxObservable.ActionsObservable<Redux.AnyAction>
+  ) {
     return action$
       .ofType('FETCH')
-      .switchMap((_: Redux.AnyAction) => {
+      .switchMap(() => {
         if (Math.random() < .2) {
           return Rx.Observable.of(
-            Action.error('Random Error! ' + Math.random())
+            Action.error('Error: Something went wrong.')
           )
         }
         else {
@@ -135,10 +132,10 @@ namespace Epic {
             Action.fetched({
               ...emptyOr({c: Math.random() * 10}),
               ...emptyOr({f: Math.random() * 50}),
-              temp: {
+              temp: emptyOr({
                 ...emptyOr({celsius: Math.random() * 10}),
                 ...emptyOr({fahrenheit: Math.random() * 50})
-              },
+              }),
               wind: {
                 ...emptyOr({speed: Math.random() * 60}),
                 direction: Model.cardinalPoints[Math.floor(Math.random() * 4)]
@@ -155,7 +152,7 @@ namespace Epic {
 
 namespace Component {
   interface Props {
-    dispatch: Redux.Dispatch<any>
+    dispatch: Redux.Dispatch<Redux.AnyAction>
     weather: Model.WeatherState
   }
 
@@ -172,13 +169,13 @@ namespace Component {
     }
 
     renderTemperature() {
-      const {celsius: c, fahrenheit: f} = this.props.weather.temperature
+      const {celsius, fahrenheit} = this.props.weather.temperature
       return (
         <div className='alert alert-success' role='alert'>
           <h4 className='alert-heading'>Temperature</h4>
-          <p>{f}&deg; F</p>
+          <p>{fahrenheit}&deg; F</p>
           <hr/>
-          <p className='mb-0'>{c}&deg; C</p>
+          <p className='mb-0'>{celsius}&deg; C</p>
         </div>
       )
     }
@@ -212,7 +209,7 @@ namespace Component {
 }
 
 ///////////////////////////////////////////////////////////////
-// Wire up Redux store and mount the app to the DOM.
+// Wire up Redux store and mount the app to the DOM
 
 export function launchApp() {
   const store = Redux.createStore(

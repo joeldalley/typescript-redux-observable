@@ -22,8 +22,9 @@
   },
   "homepage": "https://github.com/joeldalley/typescript-redux-observable#readme",
   "scripts": {
-    "build": "npm run clean && npm run tsc --pretty && npm run webpack --",
+    "build": "npm run clean && npm run tsc --pretty && npm run lint && npm run webpack --",
     "clean": "rm -rf dist",
+    "lint": "tslint src/*.tsx",
     "tsc": "tsc",
     "watch": "npm run tsc && npm run webpack -- -w",
     "webpack": "webpack"
@@ -46,6 +47,7 @@
     "babel-preset-env": "^1.6.0",
     "jest-cli": "^21.2.1",
     "source-map-loader": "^0.2.3",
+    "ts-lint": "^4.5.1",
     "tslint": "^5.7.0",
     "typescript": "^2.6.1"
   }
