@@ -68,9 +68,15 @@ namespace Model {
 }
 
 ///////////////////////////////////////////////////////////////
-// Action creator functions
+// Action types and action creator functions
 
 namespace Action {
+  export const Types = {
+    ERROR:   'WeatherState/ERROR',
+    FETCH:   'WeatherState/FETCH',
+    FETCHED: 'WeatherState/FETCHED'
+  }
+
   export type WeatherAction = {
     type: string
     error?: string
@@ -80,15 +86,15 @@ namespace Action {
   export const DO_NOTHING: WeatherAction = {type: 'DO_NOTHING'}
 
   export function error(err: string): WeatherAction {
-    return {type: 'ERROR', error: err}
+    return {type: Types.ERROR, error: err}
   }
 
   export function fetch(): WeatherAction {
-    return {type: 'FETCH'}
+    return {type: Types.FETCH}
   }
 
   export function fetched(json: object): WeatherAction {
-    return {type: 'FETCHED', json}
+    return {type: Types.FETCHED, json}
   }
 }
 
@@ -101,15 +107,15 @@ namespace Reducer {
     action: Action.WeatherAction = Action.DO_NOTHING
   ): Model.WeatherState {
     switch (action.type) {
-      case 'ERROR': return new Model.WeatherState({
+      case Action.Types.ERROR: return new Model.WeatherState({
         ...state,
         error: action.error
       })
-      case 'FETCH': return new Model.WeatherState({
+      case Action.Types.FETCH: return new Model.WeatherState({
         ...state,
         error: ''
       })
-      case 'FETCHED': return new Model.WeatherState({
+      case Action.Types.FETCHED: return new Model.WeatherState({
         ...state,
         error: '',
         json: action.json
@@ -126,10 +132,10 @@ namespace Epic {
   const emptyOr = (or: object) => Math.random() < .5 ? {} : or
 
   export function fetchWeather(
-    action$: ReduxObservable.ActionsObservable<Redux.AnyAction>
+    action$: ReduxObservable.ActionsObservable<Action.WeatherAction>
   ) {
     return action$
-      .ofType('FETCH')
+      .ofType(Action.Types.FETCH)
       .switchMap(() => {
         if (Math.random() < .2) {
           return Rx.Observable.of(
@@ -161,7 +167,7 @@ namespace Epic {
 
 namespace Component {
   interface Props {
-    dispatch: Redux.Dispatch<Redux.AnyAction>
+    dispatch: Redux.Dispatch<Action.WeatherAction>
     weather: Model.WeatherState
   }
 

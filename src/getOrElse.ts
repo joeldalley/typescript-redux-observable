@@ -68,4 +68,4 @@ export const getStringOr = (
   root: object,
   dotPath: string | string[],
   orElse: any = undefined
-): string => Object(getDefinedOrElse(root, dotPath, orElse))
+): string => String(getDefinedOrElse(root, dotPath, orElse))
