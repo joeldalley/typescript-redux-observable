@@ -30,7 +30,7 @@ namespace Model {
     wind: Wind
   }
 
-  export type Constructable = WeatherState & {json: object}
+  export type Constructable = WeatherState & {json?: object}
 
   export const cardinalPoints = Object.keys(Direction)
   export const getWindDirection = (dir = ''): Direction => {
@@ -42,7 +42,7 @@ namespace Model {
     temperature: Temperature = {celsius: 0, fahrenheit: 0}
     wind: Wind = {description: 'calm', direction: Direction.N, speed: {'mi/h': 0}}
 
-    constructor(arg: Partial<Constructable> = {json: undefined}) {
+    constructor(arg: Partial<Constructable> = {}) {
       if (arg.json) {
         this.temperature = {
           celsius: getNumberOr(arg.json, ['c', 'temp.celsius'], 0),
